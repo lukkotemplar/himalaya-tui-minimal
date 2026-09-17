@@ -1,0 +1,67 @@
+[package]
+name = "himalaya-tui"
+description = "TUI to manage emails"
+version = "0.1.0"
+authors = ["Clément DOUIN (soywod) <pimalaya.org@posteo.net>"]
+rust-version = "1.89"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+categories = ["command-line-utilities", "email"]
+keywords = ["tui", "email", "imap", "ratatui", "jmap"]
+homepage = "https://pimalaya.org"
+repository = "https://github.com/pimalaya/himalaya-tui"
+
+[features]
+default = ["rustls-ring", "imap", "smtp", "jmap", "maildir"]
+imap = ["dep:io-imap", "io-imap/client", "pimalaya-cli/imap"]
+smtp = ["dep:io-smtp", "io-smtp/client", "pimalaya-cli/smtp"]
+jmap = ["dep:io-jmap", "dep:base64", "io-jmap/client", "pimalaya-cli/jmap"]
+maildir = ["dep:io-maildir", "io-maildir/client", "io-maildir/parser"]
+native-tls = ["pimalaya-stream/native-tls", "io-pim-discovery/native-tls", "io-imap?/native-tls", "io-jmap?/native-tls", "io-smtp?/native-tls"]
+rustls-aws = ["pimalaya-stream/rustls-aws", "io-pim-discovery/rustls-aws", "io-imap?/rustls-aws", "io-jmap?/rustls-aws", "io-smtp?/rustls-aws"]
+rustls-ring = ["pimalaya-stream/rustls-ring", "io-pim-discovery/rustls-ring", "io-imap?/rustls-ring", "io-jmap?/rustls-ring", "io-smtp?/rustls-ring"]
+vendored = ["pimalaya-stream/vendored"]
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+strip = "symbols"
+panic = "abort"
+
+[build-dependencies]
+pimalaya-cli = { version = "0.2", default-features = false, features = ["build"] }
+
+[dependencies]
+anyhow = "1"
+base64 = { version = "0.23", optional = true, default-features = false, features = ["alloc"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+clap = { version = "4.4", features = ["derive", "env", "wrap_help"] }
+edtui = { version = "0.11", features = ["system-editor"] }
+html2text = "0.17"
+io-imap = { version = "0.6", default-features = false, optional = true }
+io-jmap = { version = "0.3", default-features = false, optional = true }
+io-maildir = { version = "0.3", default-features = false, optional = true }
+io-pim-discovery = { version = "0.7", default-features = false, features = ["pacc", "autoconfig", "rfc6186", "rfc8620"] }
+io-sasl = { version = "0.1", default-features = false, features = ["scram"] }
+io-smtp = { version = "0.3", default-features = false, optional = true }
+log = "0.4"
+mail-parser = "0.11"
+mime-meta-language = { version = "1.1", default-features = false, features = ["compiler", "interpreter"] }
+pimalaya-cli = { version = "0.2", default-features = false, features = ["prompt", "wizard", "spinner", "terminal"] }
+pimalaya-config = { version = "0.1", default-features = false, features = ["toml", "secret"] }
+pimalaya-stream = { version = "0.3", default-features = false, features = ["std"] }
+ratatui = { version = "0.30", features = ["serde"] }
+rfc2047-decoder = "1"
+secrecy = "0.10"
+serde = { version = "1", features = ["derive"] }
+shellexpand = "3.1"
+simplelog = "0.12"
+toml = "1.1"
+tui-input = { version = "0.15", default-features = false }
+url = { version = "2.2", features = ["serde"] }
+
+[target.'cfg(windows)'.dependencies]
+uds_windows = "1"
+
+[patch.crates-io]
+mime-meta-language.git = "https://github.com/pimalaya/mml"
